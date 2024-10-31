@@ -13,6 +13,8 @@
 5. CSSが効かない…と思っていたらlayout.tsxにimport "./globals.css";が無かった。  
    Next.jsのHPにあるinstructionに沿ってテストしたときに抜けたみたい。  
    前も同じような経験がったのですぐ気づけて良かった（しかし繰り返している…）
+6. ReactとReact-iconのバージョン競合で下記対策
+   npm install --save react@18.3.1 react-dom@18.3.1
 
 ### 2024/10/30
 
