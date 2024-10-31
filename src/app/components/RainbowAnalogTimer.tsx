@@ -14,14 +14,13 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-interface TimerProps {}
-
-export default function RainbowAnalogTimer({}: TimerProps) {
+// 直接型を指定 空のインターフェースだとエラーが出たので変更
+export default function RainbowAnalogTimer() {
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [timerName, setTimerName] = useState<string>("");
   const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [maxTime, setMaxTime] = useState<number>(3600); // デフォルトは60分（3600秒）
+  const [maxTime, setMaxTime] = useState<number>(3600);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
