@@ -14,13 +14,12 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-// 直接型を指定 空のインターフェースだとエラーが出たので変更
 export default function RainbowAnalogTimer() {
   const [time, setTime] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [timerName, setTimerName] = useState<string>("");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [maxTime, setMaxTime] = useState<number>(3600);
+  const [isRunning, setIsRunning] = useState<boolean>(false); //タイマー値
+  const [timerName, setTimerName] = useState<string>(""); //タイマー名
+  const [showAlert, setShowAlert] = useState<boolean>(false); //アラートを表示
+  const [maxTime, setMaxTime] = useState<number>(3600); //タイマーMax値
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export default function RainbowAnalogTimer() {
           if (prevTime <= 1) {
             clearInterval(intervalRef.current as NodeJS.Timeout);
             setIsRunning(false);
-            setShowAlert(true);
+            setShowAlert(true); // アラートを表示するのはここだけ
             return 0;
           }
           return prevTime - 1;
@@ -38,7 +37,6 @@ export default function RainbowAnalogTimer() {
       }, 1000);
     } else if (time === 0) {
       setIsRunning(false);
-      setShowAlert(true);
     }
 
     return () => {
@@ -144,6 +142,7 @@ export default function RainbowAnalogTimer() {
             }
             placeholder="タイマー名を入力"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            disabled={isRunning}
           />
         </div>
         <div className="mb-4">
@@ -162,6 +161,7 @@ export default function RainbowAnalogTimer() {
               setTimerMinutes(e.target.value)
             }
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            disabled={isRunning}
           />
         </div>
         <div className="flex justify-center space-x-2">
