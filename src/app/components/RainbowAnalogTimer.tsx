@@ -16,10 +16,11 @@ import {
 
 export default function RainbowAnalogTimer() {
   const [time, setTime] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false); //タイマー値
-  const [timerName, setTimerName] = useState<string>(""); //タイマー名
-  const [showAlert, setShowAlert] = useState<boolean>(false); //アラートを表示
-  const [maxTime, setMaxTime] = useState<number>(3600); //タイマーMax値
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [timerName, setTimerName] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [maxTime, setMaxTime] = useState<number>(3600);
+  const [inputMinutes, setInputMinutes] = useState<string>(""); //ユーザーの入力値
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function RainbowAnalogTimer() {
           if (prevTime <= 1) {
             clearInterval(intervalRef.current as NodeJS.Timeout);
             setIsRunning(false);
-            setShowAlert(true); // アラートを表示するのはここだけ
+            setShowAlert(true);
             return 0;
           }
           return prevTime - 1;
@@ -57,15 +58,17 @@ export default function RainbowAnalogTimer() {
   const resetTimer = () => {
     setIsRunning(false);
     setTime(0);
+    setInputMinutes("");
   };
 
   const setTimerMinutes = (minutes: string) => {
+    setInputMinutes(minutes);
     const parsedMinutes = parseInt(minutes, 10);
     if (minutes === "" || isNaN(parsedMinutes)) {
       setMaxTime(0);
       setTime(0);
     } else {
-      const newTime = Math.min(parsedMinutes * 60, 3600);
+      const newTime = Math.min(Math.max(parsedMinutes, 1), 60) * 60;
       setMaxTime(newTime);
       setTime(newTime);
     }
@@ -150,13 +153,14 @@ export default function RainbowAnalogTimer() {
             htmlFor="timerMinutes"
             className="block text-sm font-medium text-gray-700"
           >
-            タイマー設定（分）
+            タイマー設定（1-60分）
           </Label>
           <Input
             id="timerMinutes"
             type="number"
-            min="0"
+            min="1"
             max="60"
+            value={inputMinutes}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setTimerMinutes(e.target.value)
             }
