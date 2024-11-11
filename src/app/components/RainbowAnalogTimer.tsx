@@ -20,7 +20,8 @@ export default function RainbowAnalogTimer() {
   const [timerName, setTimerName] = useState<string>("");
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [maxTime, setMaxTime] = useState<number>(3600);
-  const [inputMinutes, setInputMinutes] = useState<string>(""); //ユーザーの入力値
+  const [inputMinutes, setInputMinutes] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -48,29 +49,42 @@ export default function RainbowAnalogTimer() {
   const startTimer = () => {
     if (time > 0) {
       setIsRunning(true);
+      setError(null);
+    } else {
+      setError("タイマーを開始するには、1分以上の時間を設定してください。");
     }
   };
 
   const stopTimer = () => {
     setIsRunning(false);
+    setError(null);
   };
 
   const resetTimer = () => {
     setIsRunning(false);
     setTime(0);
     setInputMinutes("");
+    setError(null);
   };
 
-  const setTimerMinutes = (minutes: string) => {
-    setInputMinutes(minutes);
-    const parsedMinutes = parseInt(minutes, 10);
-    if (minutes === "" || isNaN(parsedMinutes)) {
-      setMaxTime(0);
-      setTime(0);
-    } else {
-      const newTime = Math.min(Math.max(parsedMinutes, 1), 60) * 60;
-      setMaxTime(newTime);
-      setTime(newTime);
+  const setTimerMinutes = (minutes: string | number) => {
+    try {
+      const parsedMinutes =
+        typeof minutes === "string" ? parseInt(minutes, 10) : minutes;
+      setInputMinutes(parsedMinutes.toString());
+      if (isNaN(parsedMinutes)) {
+        setMaxTime(0);
+        setTime(0);
+        setError("無効な入力です。1から60の間の数字を入力してください。");
+      } else {
+        const newTime = Math.min(Math.max(parsedMinutes, 1), 60) * 60;
+        setMaxTime(newTime);
+        setTime(newTime);
+        setError(null);
+      }
+    } catch (err) {
+      console.error("Error setting timer minutes:", err);
+      setError("タイマーの設定中にエラーが発生しました。");
     }
   };
 
@@ -82,6 +96,9 @@ export default function RainbowAnalogTimer() {
       .toString()
       .padStart(2, "0")}`;
   };
+
+  const presetButtonsRow1 = [3, 5, 10, 15];
+  const presetButtonsRow2 = [20, 30, 45, 60];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -168,6 +185,33 @@ export default function RainbowAnalogTimer() {
             disabled={isRunning}
           />
         </div>
+        <div className="mb-4">
+          <div className="flex justify-center gap-2 mb-2">
+            {presetButtonsRow1.map((minutes) => (
+              <Button
+                key={minutes}
+                onClick={() => setTimerMinutes(minutes)}
+                disabled={isRunning}
+                className="w-12 h-12 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+              >
+                {minutes}
+              </Button>
+            ))}
+          </div>
+          <div className="flex justify-center gap-2">
+            {presetButtonsRow2.map((minutes) => (
+              <Button
+                key={minutes}
+                onClick={() => setTimerMinutes(minutes)}
+                disabled={isRunning}
+                className="w-12 h-12 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+              >
+                {minutes}
+              </Button>
+            ))}
+          </div>
+        </div>
+        {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
         <div className="flex justify-center space-x-2">
           <Button
             onClick={startTimer}
