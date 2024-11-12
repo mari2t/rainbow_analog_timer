@@ -62,8 +62,7 @@ export default function RainbowAnalogTimer() {
 
   const resetTimer = () => {
     setIsRunning(false);
-    setTime(0);
-    setInputMinutes("");
+    setTime(maxTime);
     setError(null);
   };
 
@@ -100,6 +99,19 @@ export default function RainbowAnalogTimer() {
   const presetButtonsRow1 = [3, 5, 10, 15];
   const presetButtonsRow2 = [20, 30, 45, 60];
 
+  const percentage = (time / maxTime) * 100;
+
+  const getColor = (percent: number): string => {
+    if (percent > 80) return "#4682B4"; // Steel Blue
+    if (percent > 60) return "#32CD32"; // Lime Green
+    if (percent > 40) return "#FFD700"; // Golden Yellow
+    if (percent > 20) return "#FF8C00"; // Dark Orange
+    return "#FF6347"; // Tomato Red
+  };
+
+  const arcLength = 2 * Math.PI * 45;
+  const dashOffset = arcLength * (1 - percentage / 100);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -121,31 +133,19 @@ export default function RainbowAnalogTimer() {
               cy="50"
               r="45"
               fill="none"
-              stroke="url(#rainbow)"
+              stroke={getColor(percentage)}
               strokeWidth="10"
-              strokeDasharray="282.7"
-              strokeDashoffset={
-                maxTime > 0 ? 282.7 - (282.7 * time) / maxTime : 282.7
-              }
+              strokeDasharray={arcLength}
+              strokeDashoffset={dashOffset}
               transform="rotate(-90 50 50)"
               className="transition-all duration-1000 ease-linear"
             />
-            <defs>
-              <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#ff0000" />
-                <stop offset="16.67%" stopColor="#ff8000" />
-                <stop offset="33.33%" stopColor="#ffff00" />
-                <stop offset="50%" stopColor="#00ff00" />
-                <stop offset="66.67%" stopColor="#0000ff" />
-                <stop offset="83.33%" stopColor="#8000ff" />
-                <stop offset="100%" stopColor="#ff0080" />
-              </linearGradient>
-            </defs>
           </svg>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
             {formatTime(time)}
           </div>
         </div>
+
         <div className="mb-4">
           <Label
             htmlFor="timerName"
