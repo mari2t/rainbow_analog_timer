@@ -101,16 +101,51 @@ export default function RainbowAnalogTimer() {
 
   const percentage = (time / maxTime) * 100;
 
-  const getColor = (percent: number): string => {
-    if (percent > 80) return "#4682B4"; // Steel Blue
-    if (percent > 60) return "#32CD32"; // Lime Green
-    if (percent > 40) return "#FFD700"; // Golden Yellow
-    if (percent > 20) return "#FF8C00"; // Dark Orange
-    return "#FF6347"; // Tomato Red
+  const describeArc = (
+    x: number,
+    y: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number
+  ) => {
+    const start = polarToCartesian(x, y, radius, endAngle);
+    const end = polarToCartesian(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return [
+      "M",
+      start.x,
+      start.y,
+      "A",
+      radius,
+      radius,
+      0,
+      largeArcFlag,
+      0,
+      end.x,
+      end.y,
+    ].join(" ");
   };
 
-  const arcLength = 2 * Math.PI * 45;
-  const dashOffset = arcLength * (1 - percentage / 100);
+  const polarToCartesian = (
+    centerX: number,
+    centerY: number,
+    radius: number,
+    angleInDegrees: number
+  ) => {
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    return {
+      x: centerX + radius * Math.cos(angleInRadians),
+      y: centerY + radius * Math.sin(angleInRadians),
+    };
+  };
+
+  const colorSegments = [
+    { color: "#4682B4", start: 80, end: 100 }, // Blue
+    { color: "#32CD32", start: 60, end: 80 }, // Green
+    { color: "#FFD700", start: 40, end: 60 }, // Orange
+    { color: "#FF8C00", start: 20, end: 40 }, // Yellow
+    { color: "#FF6347", start: 0, end: 20 }, // Red
+  ];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -128,24 +163,28 @@ export default function RainbowAnalogTimer() {
               stroke="#e0e0e0"
               strokeWidth="10"
             />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke={getColor(percentage)}
-              strokeWidth="10"
-              strokeDasharray={arcLength}
-              strokeDashoffset={dashOffset}
-              transform="rotate(-90 50 50)"
-              className="transition-all duration-1000 ease-linear"
-            />
+            {colorSegments.map((segment, index) => {
+              const startAngle = 360 * (segment.start / 100);
+              const endAngle = 360 * (Math.min(percentage, segment.end) / 100);
+              if (startAngle < endAngle) {
+                return (
+                  <path
+                    key={index}
+                    d={describeArc(50, 50, 45, startAngle, endAngle)}
+                    fill="none"
+                    stroke={segment.color}
+                    strokeWidth="10"
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                );
+              }
+              return null;
+            })}
           </svg>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
             {formatTime(time)}
           </div>
         </div>
-
         <div className="mb-4">
           <Label
             htmlFor="timerName"
