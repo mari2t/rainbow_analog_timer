@@ -14,6 +14,53 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
+type ColorSegment = {
+  color: string;
+  start: number;
+  end: number;
+};
+
+type ColorPattern = ColorSegment[];
+
+const colorPatterns: { name: string; pattern: ColorPattern }[] = [
+  {
+    name: "Pastel",
+    pattern: [
+      { color: "#6495ED", start: 75, end: 100 },
+      { color: "#32CD32", start: 50, end: 75 },
+      { color: "#FFD700", start: 25, end: 50 },
+      { color: "#FFA07A", start: 0, end: 25 },
+    ],
+  },
+  {
+    name: "Tropical",
+    pattern: [
+      { color: "#40E0D0", start: 75, end: 100 },
+      { color: "#aaff00", start: 50, end: 75 },
+      { color: "#ffc400", start: 25, end: 50 },
+      { color: "#FF6347", start: 0, end: 25 },
+    ],
+  },
+  {
+    name: "Dark",
+    pattern: [
+      { color: "#4682B4", start: 75, end: 100 },
+      { color: "#556B2F", start: 50, end: 75 },
+      { color: "#DAA520", start: 25, end: 50 },
+      { color: "#8B0000", start: 0, end: 25 },
+    ],
+  },
+  {
+    name: "Monotone",
+    pattern: [
+      { color: "#DDDDDD", start: 75, end: 100 },
+      { color: "#AAAAAA", start: 50, end: 75 },
+      { color: "#555555", start: 25, end: 50 },
+      { color: "#000000", start: 0, end: 25 },
+    ],
+  },
+];
+
 export default function RainbowAnalogTimer() {
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -22,6 +69,9 @@ export default function RainbowAnalogTimer() {
   const [maxTime, setMaxTime] = useState<number>(3600);
   const [inputMinutes, setInputMinutes] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [colorPattern, setColorPattern] = useState<ColorPattern>(
+    colorPatterns[0].pattern
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -96,8 +146,7 @@ export default function RainbowAnalogTimer() {
       .padStart(2, "0")}`;
   };
 
-  const presetButtonsRow1 = [3, 5, 10, 15];
-  const presetButtonsRow2 = [20, 30, 45, 60];
+  const presetButtonsRow1 = [5, 15, 25, 45];
 
   const percentage = (time / maxTime) * 100;
 
@@ -139,14 +188,6 @@ export default function RainbowAnalogTimer() {
     };
   };
 
-  const colorSegments = [
-    { color: "#4682B4", start: 80, end: 100 }, // Blue
-    { color: "#32CD32", start: 60, end: 80 }, // Green
-    { color: "#FFD700", start: 40, end: 60 }, // Orange
-    { color: "#FF8C00", start: 20, end: 40 }, // Yellow
-    { color: "#FF6347", start: 0, end: 20 }, // Red
-  ];
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -163,7 +204,7 @@ export default function RainbowAnalogTimer() {
               stroke="#e0e0e0"
               strokeWidth="10"
             />
-            {colorSegments.map((segment, index) => {
+            {colorPattern.map((segment, index) => {
               const startAngle = 360 * (segment.start / 100);
               const endAngle = 360 * (Math.min(percentage, segment.end) / 100);
               if (startAngle < endAngle) {
@@ -185,6 +226,7 @@ export default function RainbowAnalogTimer() {
             {formatTime(time)}
           </div>
         </div>
+
         <div className="mb-4">
           <Label
             htmlFor="timerName"
@@ -237,19 +279,35 @@ export default function RainbowAnalogTimer() {
               </Button>
             ))}
           </div>
-          <div className="flex justify-center gap-2">
-            {presetButtonsRow2.map((minutes) => (
+        </div>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Select Color Pattern</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            {colorPatterns.map((patternObj, index) => (
               <Button
-                key={minutes}
-                onClick={() => setTimerMinutes(minutes)}
-                disabled={isRunning}
-                className="w-12 h-12 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+                key={index}
+                onClick={() => setColorPattern(patternObj.pattern)}
+                className="w-full h-16 p-1 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
               >
-                {minutes}
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-grow flex">
+                    {patternObj.pattern.map((segment, segmentIndex) => (
+                      <div
+                        key={segmentIndex}
+                        className="flex-grow"
+                        style={{ backgroundColor: segment.color }}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-xs font-medium text-center py-1 bg-white text-gray-800">
+                    {patternObj.name}
+                  </div>
+                </div>
               </Button>
             ))}
           </div>
         </div>
+
         {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
         <div className="flex justify-center space-x-2">
           <Button
