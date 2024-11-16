@@ -62,6 +62,7 @@ const colorPatterns: { name: string; pattern: ColorPattern }[] = [
 ];
 
 export default function RainbowAnalogTimer() {
+  const [isClient, setIsClient] = useState(false);
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [timerName, setTimerName] = useState<string>("");
@@ -69,10 +70,13 @@ export default function RainbowAnalogTimer() {
   const [maxTime, setMaxTime] = useState<number>(3600);
   const [inputMinutes, setInputMinutes] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [colorPattern, setColorPattern] = useState<ColorPattern>(
-    colorPatterns[0].pattern
-  );
+  const [colorPattern, setColorPattern] = useState<ColorPattern | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+    setColorPattern(colorPatterns[0].pattern);
+  }, []);
 
   useEffect(() => {
     if (isRunning && time > 0) {
@@ -188,12 +192,14 @@ export default function RainbowAnalogTimer() {
     };
   };
 
+  if (!isClient) {
+    return null; // または、ローディング表示
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          Rainbow Analog Timer
-        </h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">4色タイマー</h1>
         <div className="relative w-64 h-64 mx-auto mb-4">
           <svg viewBox="0 0 100 100" className="w-full h-full">
             <circle
@@ -204,23 +210,25 @@ export default function RainbowAnalogTimer() {
               stroke="#e0e0e0"
               strokeWidth="10"
             />
-            {colorPattern.map((segment, index) => {
-              const startAngle = 360 * (segment.start / 100);
-              const endAngle = 360 * (Math.min(percentage, segment.end) / 100);
-              if (startAngle < endAngle) {
-                return (
-                  <path
-                    key={index}
-                    d={describeArc(50, 50, 45, startAngle, endAngle)}
-                    fill="none"
-                    stroke={segment.color}
-                    strokeWidth="10"
-                    className="transition-all duration-1000 ease-linear"
-                  />
-                );
-              }
-              return null;
-            })}
+            {colorPattern &&
+              colorPattern.map((segment, index) => {
+                const startAngle = 360 * (segment.start / 100);
+                const endAngle =
+                  360 * (Math.min(percentage, segment.end) / 100);
+                if (startAngle < endAngle) {
+                  return (
+                    <path
+                      key={index}
+                      d={describeArc(50, 50, 45, startAngle, endAngle)}
+                      fill="none"
+                      stroke={segment.color}
+                      strokeWidth="10"
+                      className="transition-all duration-1000 ease-linear"
+                    />
+                  );
+                }
+                return null;
+              })}
           </svg>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
             {formatTime(time)}
@@ -273,36 +281,9 @@ export default function RainbowAnalogTimer() {
                 key={minutes}
                 onClick={() => setTimerMinutes(minutes)}
                 disabled={isRunning}
-                className="w-12 h-12 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+                className="w-12 h-12 rounded-full bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-opacity-100 disabled:opacity-50"
               >
                 {minutes}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Select Color Pattern</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-            {colorPatterns.map((patternObj, index) => (
-              <Button
-                key={index}
-                onClick={() => setColorPattern(patternObj.pattern)}
-                className="w-full h-16 p-1 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
-              >
-                <div className="w-full h-full flex flex-col">
-                  <div className="flex-grow flex">
-                    {patternObj.pattern.map((segment, segmentIndex) => (
-                      <div
-                        key={segmentIndex}
-                        className="flex-grow"
-                        style={{ backgroundColor: segment.color }}
-                      />
-                    ))}
-                  </div>
-                  <div className="text-xs font-medium text-center py-1 bg-white text-gray-800">
-                    {patternObj.name}
-                  </div>
-                </div>
               </Button>
             ))}
           </div>
@@ -330,6 +311,35 @@ export default function RainbowAnalogTimer() {
           >
             リセット
           </Button>
+        </div>
+        <div className="mb-4">
+          <h2 className="text-sm font-medium mt-4 mb-2">
+            オプション : タイマーカラー設定
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            {colorPatterns.map((patternObj, index) => (
+              <Button
+                key={index}
+                onClick={() => setColorPattern(patternObj.pattern)}
+                className="w-full h-16 p-1 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
+              >
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-grow flex">
+                    {patternObj.pattern.map((segment, segmentIndex) => (
+                      <div
+                        key={segmentIndex}
+                        className="flex-grow"
+                        style={{ backgroundColor: segment.color }}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-xs font-medium text-center py-1 bg-white text-gray-800">
+                    {patternObj.name}
+                  </div>
+                </div>
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
