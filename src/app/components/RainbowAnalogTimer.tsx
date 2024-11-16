@@ -26,10 +26,10 @@ const colorPatterns: { name: string; pattern: ColorPattern }[] = [
   {
     name: "Pastel",
     pattern: [
-      { color: "#6495ED", start: 75, end: 100 },
-      { color: "#32CD32", start: 50, end: 75 },
-      { color: "#FFD700", start: 25, end: 50 },
-      { color: "#FFA07A", start: 0, end: 25 },
+      { color: "#9ea6e9", start: 75, end: 100 },
+      { color: "#9cefc0", start: 50, end: 75 },
+      { color: "#e7f569", start: 25, end: 50 },
+      { color: "#f5bd98", start: 0, end: 25 },
     ],
   },
   {
@@ -37,8 +37,8 @@ const colorPatterns: { name: string; pattern: ColorPattern }[] = [
     pattern: [
       { color: "#40E0D0", start: 75, end: 100 },
       { color: "#aaff00", start: 50, end: 75 },
-      { color: "#ffc400", start: 25, end: 50 },
-      { color: "#FF6347", start: 0, end: 25 },
+      { color: "#ffea00", start: 25, end: 50 },
+      { color: "#ff8447", start: 0, end: 25 },
     ],
   },
   {
@@ -53,9 +53,9 @@ const colorPatterns: { name: string; pattern: ColorPattern }[] = [
   {
     name: "Monotone",
     pattern: [
-      { color: "#DDDDDD", start: 75, end: 100 },
-      { color: "#AAAAAA", start: 50, end: 75 },
-      { color: "#555555", start: 25, end: 50 },
+      { color: "#000000", start: 75, end: 100 },
+      { color: "#000000", start: 50, end: 75 },
+      { color: "#000000", start: 25, end: 50 },
       { color: "#000000", start: 0, end: 25 },
     ],
   },
@@ -205,10 +205,10 @@ export default function RainbowAnalogTimer() {
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r="40" // 中心からの距離
               fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="10"
+              stroke="#ebe9e9"
+              strokeWidth="16" // 太さ
             />
             {colorPattern &&
               colorPattern.map((segment, index) => {
@@ -219,10 +219,10 @@ export default function RainbowAnalogTimer() {
                   return (
                     <path
                       key={index}
-                      d={describeArc(50, 50, 45, startAngle, endAngle)}
+                      d={describeArc(50, 50, 40, startAngle, endAngle)}
                       fill="none"
                       stroke={segment.color}
-                      strokeWidth="10"
+                      strokeWidth="16"
                       className="transition-all duration-1000 ease-linear"
                     />
                   );
@@ -237,27 +237,8 @@ export default function RainbowAnalogTimer() {
 
         <div className="mb-4">
           <Label
-            htmlFor="timerName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            タイマー名
-          </Label>
-          <Input
-            id="timerName"
-            type="text"
-            value={timerName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setTimerName(e.target.value)
-            }
-            placeholder="タイマー名を入力"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            disabled={isRunning}
-          />
-        </div>
-        <div className="mb-4">
-          <Label
             htmlFor="timerMinutes"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-semibold text-gray-700"
           >
             タイマー設定（1-60分）
           </Label>
@@ -281,7 +262,7 @@ export default function RainbowAnalogTimer() {
                 key={minutes}
                 onClick={() => setTimerMinutes(minutes)}
                 disabled={isRunning}
-                className="w-12 h-12 rounded-full bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-opacity-100 disabled:opacity-50"
+                className="w-12 h-12 rounded-full border-2 bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-opacity-100 disabled:opacity-50"
               >
                 {minutes}
               </Button>
@@ -312,11 +293,14 @@ export default function RainbowAnalogTimer() {
             リセット
           </Button>
         </div>
-        <div className="mb-4">
-          <h2 className="text-sm font-medium mt-4 mb-2">
-            オプション : タイマーカラー設定
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+        <div className="mt-12 mb-4">
+          <Label
+            htmlFor="timerMinutes"
+            className="block text-sm font-semibold text-gray-700"
+          >
+            オプション：タイマー色設定
+          </Label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
             {colorPatterns.map((patternObj, index) => (
               <Button
                 key={index}
@@ -340,6 +324,25 @@ export default function RainbowAnalogTimer() {
               </Button>
             ))}
           </div>
+        </div>
+        <div className="mb-4">
+          <Label
+            htmlFor="timerName"
+            className="block text-sm font-semibold text-gray-700"
+          >
+            オプション：タイマー名
+          </Label>
+          <Input
+            id="timerName"
+            type="text"
+            value={timerName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setTimerName(e.target.value)
+            }
+            placeholder="タイマー名を入力"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            disabled={isRunning}
+          />
         </div>
       </div>
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
