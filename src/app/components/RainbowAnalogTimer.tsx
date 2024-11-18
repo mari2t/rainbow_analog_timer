@@ -70,12 +70,13 @@ export default function RainbowAnalogTimer() {
   const [maxTime, setMaxTime] = useState<number>(3600);
   const [inputMinutes, setInputMinutes] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [colorPattern, setColorPattern] = useState<ColorPattern | null>(null);
+  const [colorPattern, setColorPattern] = useState<ColorPattern>(
+    colorPatterns[0].pattern
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsClient(true);
-    setColorPattern(colorPatterns[0].pattern);
   }, []);
 
   useEffect(() => {
@@ -193,7 +194,7 @@ export default function RainbowAnalogTimer() {
   };
 
   if (!isClient) {
-    return null; // または、ローディング表示
+    return null;
   }
 
   return (
@@ -205,30 +206,27 @@ export default function RainbowAnalogTimer() {
             <circle
               cx="50"
               cy="50"
-              r="40" // 中心からの距離
+              r="40"
               fill="none"
               stroke="#ebe9e9"
-              strokeWidth="16" // 太さ
+              strokeWidth="16"
             />
-            {colorPattern &&
-              colorPattern.map((segment, index) => {
-                const startAngle = 360 * (segment.start / 100);
-                const endAngle =
-                  360 * (Math.min(percentage, segment.end) / 100);
-                if (startAngle < endAngle) {
-                  return (
-                    <path
-                      key={index}
-                      d={describeArc(50, 50, 40, startAngle, endAngle)}
-                      fill="none"
-                      stroke={segment.color}
-                      strokeWidth="16"
-                      className="transition-all duration-1000 ease-linear"
-                    />
-                  );
-                }
-                return null;
-              })}
+            {colorPattern.map((segment, index) => {
+              const startAngle = 360 * (segment.start / 100);
+              const endAngle = 360 * (Math.min(percentage, segment.end) / 100);
+              if (startAngle < endAngle) {
+                return (
+                  <path
+                    key={index}
+                    d={describeArc(50, 50, 40, startAngle, endAngle)}
+                    fill="none"
+                    stroke={segment.color}
+                    strokeWidth="16"
+                  />
+                );
+              }
+              return null;
+            })}
           </svg>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
             {formatTime(time)}
@@ -295,7 +293,7 @@ export default function RainbowAnalogTimer() {
         </div>
         <div className="mt-12 mb-4">
           <Label
-            htmlFor="timerMinutes"
+            htmlFor="colorPattern"
             className="block text-sm font-semibold text-gray-700"
           >
             オプション：タイマー色設定
