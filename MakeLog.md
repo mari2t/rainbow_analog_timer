@@ -10,6 +10,7 @@
    As a result this tree will be regenerated on the client.  
    This can happen if a SSR-ed Client Component used
 3. Readmeにスクリーンショットを追加
+4. 完成
 
 ### 2024/11/18
 
