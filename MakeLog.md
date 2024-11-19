@@ -2,6 +2,15 @@
 
 制作過程を記録するために作成
 
+### 2024/11/19
+
+1. タイマー名をタイマー上部の文字に反映させるようにした。
+2. 下記エラーにより、page.tsxとnext.config.tsに追記。
+   Hydration failed because the server rendered HTML didn't match the client.  
+   As a result this tree will be regenerated on the client.  
+   This can happen if a SSR-ed Client Component used
+3. Readmeにスクリーンショットを追加
+
 ### 2024/11/18
 
 1. 停止させてからリセットする時の円弧の戻りを、一瞬で戻るようにした。

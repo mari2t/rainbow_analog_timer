@@ -1,3 +1,4 @@
+"use client";
 import { FunctionComponent } from "react";
 import RainbowAnalogTimer from "./components/RainbowAnalogTimer";
 

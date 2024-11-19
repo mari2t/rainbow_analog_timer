@@ -74,6 +74,7 @@ export default function RainbowAnalogTimer() {
     colorPatterns[0].pattern
   );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [displayedTimerName, setDisplayedTimerName] = useState<string>("");
 
   useEffect(() => {
     setIsClient(true);
@@ -193,6 +194,11 @@ export default function RainbowAnalogTimer() {
     };
   };
 
+  //　タイマー名変更関数
+  const handleChangeTimerName = () => {
+    setDisplayedTimerName(timerName);
+  };
+
   if (!isClient) {
     return null;
   }
@@ -200,7 +206,9 @@ export default function RainbowAnalogTimer() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">4色タイマー</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          {displayedTimerName || "4色タイマー"}
+        </h1>
         <div className="relative w-64 h-64 mx-auto mb-4">
           <svg viewBox="0 0 100 100" className="w-full h-full">
             <circle
@@ -232,7 +240,6 @@ export default function RainbowAnalogTimer() {
             {formatTime(time)}
           </div>
         </div>
-
         <div className="mb-4">
           <Label
             htmlFor="timerMinutes"
@@ -260,14 +267,13 @@ export default function RainbowAnalogTimer() {
                 key={minutes}
                 onClick={() => setTimerMinutes(minutes)}
                 disabled={isRunning}
-                className="w-12 h-12 rounded-full border-2 bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-opacity-100 disabled:opacity-50"
+                className="w-12 h-12 border-2 bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-opacity-100 disabled:opacity-50"
               >
                 {minutes}
               </Button>
             ))}
           </div>
         </div>
-
         {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
         <div className="flex justify-center space-x-2">
           <Button
@@ -303,7 +309,7 @@ export default function RainbowAnalogTimer() {
               <Button
                 key={index}
                 onClick={() => setColorPattern(patternObj.pattern)}
-                className="w-full h-16 p-1 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
+                className="w-full h-16 p-1 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105 border-[0.2px]"
               >
                 <div className="w-full h-full flex flex-col">
                   <div className="flex-grow flex">
@@ -322,14 +328,14 @@ export default function RainbowAnalogTimer() {
               </Button>
             ))}
           </div>
-        </div>
-        <div className="mb-4">
-          <Label
-            htmlFor="timerName"
-            className="block text-sm font-semibold text-gray-700"
-          >
-            オプション：タイマー名
-          </Label>
+        </div>{" "}
+        <Label
+          htmlFor="colorPattern"
+          className="block text-sm font-semibold text-gray-700"
+        >
+          オプション：タイマー名を設定
+        </Label>
+        <div className="flex items-center space-x-2">
           <Input
             id="timerName"
             type="text"
@@ -341,6 +347,13 @@ export default function RainbowAnalogTimer() {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             disabled={isRunning}
           />
+          <Button
+            onClick={handleChangeTimerName}
+            disabled={isRunning}
+            className="mt-1 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50"
+          >
+            変更
+          </Button>
         </div>
       </div>
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
@@ -348,8 +361,8 @@ export default function RainbowAnalogTimer() {
           <AlertDialogHeader>
             <AlertDialogTitle>タイマー終了！</AlertDialogTitle>
             <AlertDialogDescription>
-              {timerName
-                ? `${timerName}のタイマーが終了しました。`
+              {displayedTimerName
+                ? `${displayedTimerName}のタイマーが終了しました。`
                 : "タイマーが終了しました。"}
             </AlertDialogDescription>
           </AlertDialogHeader>
